@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor Profile Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .login-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .dashboard-sidebar {
+            height: calc(100vh - 4rem);
+        }
+        .main-content {
+            height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+        @media (max-width: 768px) {
+            .dashboard-sidebar {
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Login/Signup Container -->
+    <div id="auth-container" class="min-h-screen login-bg flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
+            <div class="text-center mb-8">
+                <h1 class="text-2xl font-bold text-gray-800">Editor Profile Management</h1>
+                <p class="text-gray-600 mt-2" id="auth-subtitle">Sign in to your account</p>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Professional Email</label>
+                    <input type="email" id="login-email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="login-password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                </div>
+                <button type="submit" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Sign In</button>
+            </form>
+
+            <!-- Signup Form (Initially Hidden) -->
+            <form id="signup-form" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Professional Email</label>
+                    <input type="email" id="signup-email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="signup-password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Role</label>
+                    <select id="signup-role" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <option value="employee">Employee</option>
+                        <option value="manager">Manager</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Sign Up</button>
+            </form>
+
+            <p class="mt-4 text-center text-sm text-gray-600">
+                <a href="#" id="toggle-auth" class="font-medium text-indigo-600 hover:text-indigo-500">
+                    Create an account
+                </a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Dashboard Container (Initially Hidden) -->
+    <div id="dashboard-container" class="hidden">
+        <!-- Navigation -->
+        <nav class="bg-white shadow">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex">
+                        <div class="flex-shrink-0 flex items-center">
+                            <h1 class="text-xl font-bold text-gray-800">EPMS</h1>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <span id="user-role" class="mr-4 text-sm text-gray-600"></span>
+                        <button id="logout-btn" class="text-sm font-medium text-gray-500 hover:text-gray-700">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="flex">
+            <!-- Sidebar -->
+            <div class="dashboard-sidebar w-64 bg-gray-800 text-white p-4">
+                <div class="space-y-4">
+                    <button class="dashboard-nav-btn w-full text-left px-4 py-2 rounded hover:bg-gray-700" data-view="profiles">
+                        <i class="bi bi-person-lines-fill mr-2"></i>Editor Profiles
+                    </button>
+                    <button class="dashboard-nav-btn w-full text-left px-4 py-2 rounded hover:bg-gray-700" data-view="metrics">
+                        <i class="bi bi-graph-up mr-2"></i>Metrics
+                    </button>
+                    <button class="dashboard-nav-btn admin-only hidden w-full text-left px-4 py-2 rounded hover:bg-gray-700" data-view="users">
+                        <i class="bi bi-people-fill mr-2"></i>User Management
+                    </button>
+                    <button class="dashboard-nav-btn w-full text-left px-4 py-2 rounded hover:bg-gray-700" data-view="logs">
+                        <i class="bi bi-journal-text mr-2"></i>Activity Logs
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="main-content flex-1 p-8">
+                <!-- Editor Profiles View -->
+                <div id="profiles-view" class="space-y-6">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-2xl font-bold text-gray-800">Editor Profiles</h2>
+                        <button id="add-profile-btn" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">
+                            Add New Profile
+                        </button>
+                    </div>
+
+                    <!-- Profile List -->
+                    <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="profile-list">
+                                <!-- Profiles will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Metrics View -->
+                <div id="metrics-view" class="hidden space-y-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Performance Metrics</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="text-lg font-medium text-gray-900">Total Profiles</h3>
+                            <p class="mt-2 text-3xl font-bold text-indigo-600">0</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="text-lg font-medium text-gray-900">Pending Reviews</h3>
+                            <p class="mt-2 text-3xl font-bold text-yellow-600">0</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="text-lg font-medium text-gray-900">Completed Today</h3>
+                            <p class="mt-2 text-3xl font-bold text-green-600">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Management View -->
+                <div id="users-view" class="hidden space-y-6">
+                    <h2 class="text-2xl font-bold text-gray-800">User Management</h2>
+                    <!-- User management content will be added here -->
+                </div>
+
+                <!-- Activity Logs View -->
+                <div id="logs-view" class="hidden space-y-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Activity Logs</h2>
+                    <!-- Activity logs content will be added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Profile Modal -->
+    <div id="profile-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-medium text-gray-900" id="modal-title">Add New Editor Profile</h3>
+                    <button class="text-gray-400 hover:text-gray-500" onclick="toggleProfileModal()">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+
+                <form id="profile-form" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Full Name</label>
+                            <input type="text" name="name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Personal Email</label>
+                            <input type="email" name="email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                        </div>
+                        <!-- Add all other fields here -->
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="toggleProfileModal()" class="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-50">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Save Profile</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let currentUser = null;
+        let profiles = [];
+        let users = [];
+        let activityLogs = [];
+
+        // Auth toggle
+        document.getElementById('toggle-auth').addEventListener('click', (e) => {
+            e.preventDefault();
+            const loginForm = document.getElementById('login-form');
+            const signupForm = document.getElementById('signup-form');
+            const subtitle = document.getElementById('auth-subtitle');
+            const toggleBtn = document.getElementById('toggle-auth');
+
+            if (loginForm.classList.contains('hidden')) {
+                loginForm.classList.remove('hidden');
+                signupForm.classList.add('hidden');
+                subtitle.textContent = 'Sign in to your account';
+                toggleBtn.textContent = 'Create an account';
+            } else {
+                loginForm.classList.add('hidden');
+                signupForm.classList.remove('hidden');
+                subtitle.textContent = 'Create your account';
+                toggleBtn.textContent = 'Sign in instead';
+            }
+        });
+
+        // Login form submit
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            // Mock login - in real app this would verify against backend
+            if (email.endsWith('@company.com')) {
+                currentUser = {
+                    email: email,
+                    role: 'admin' // Mock role - should come from backend
+                };
+                showDashboard();
+            } else {
+                alert('Please use a company email address');
+            }
+        });
+
+        // Signup form submit
+        document.getElementById('signup-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const role = document.getElementById('signup-role').value;
+
+            if (email.endsWith('@company.com')) {
+                alert('Account created! Please check your email for verification.');
+                document.getElementById('toggle-auth').click();
+            } else {
+                alert('Please use a company email address');
+            }
+        });
+
+        // Show dashboard
+        function showDashboard() {
+            document.getElementById('auth-container').classList.add('hidden');
+            document.getElementById('dashboard-container').classList.remove('hidden');
+            document.getElementById('user-role').textContent = `Role: ${currentUser.role}`;
+
+            if (currentUser.role === 'admin') {
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+            }
+        }
+
+        // Navigation
+        document.querySelectorAll('.dashboard-nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const view = btn.dataset.view;
+                document.querySelectorAll('[id$="-view"]').forEach(el => el.classList.add('hidden'));
+                document.getElementById(`${view}-view`).classList.remove('hidden');
+            });
+        });
+
+        // Profile modal
+        function toggleProfileModal() {
+            const modal = document.getElementById('profile-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        // Add profile button
+        document.getElementById('add-profile-btn').addEventListener('click', toggleProfileModal);
+
+        // Profile form submit
+        document.getElementById('profile-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const profile = Object.fromEntries(formData.entries());
+            
+            profiles.push({
+                ...profile,
+                id: Date.now(),
+                createdBy: currentUser.email,
+                createdAt: new Date().toISOString()
+            });
+
+            updateProfileList();
+            toggleProfileModal();
+            e.target.reset();
+        });
+
+        // Update profile list
+        function updateProfileList() {
+            const list = document.getElementById('profile-list');
+            list.innerHTML = profiles.map(profile => `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">${profile.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${profile.email}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${profile.department || '-'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                            Active
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <button class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
+                        <button class="text-red-600 hover:text-red-900">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Logout
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            currentUser = null;
+            document.getElementById('dashboard-container').classList.add('hidden');
+            document.getElementById('auth-container').classList.remove('hidden');
+            document.getElementById('login-form').reset();
+        });
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
